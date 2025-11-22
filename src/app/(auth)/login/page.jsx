@@ -1,11 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import { signIn } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const registered = searchParams.get('registered')
@@ -46,6 +46,87 @@ export default function LoginPage() {
     }
   }
 
+  return (
+    <form className="space-y-5" onSubmit={handleSubmit}>
+      {registered && (
+        <div className="bg-green-50 text-green-600 p-4 rounded-xl text-sm border border-green-100">
+          ✓ Account created successfully! Please sign in.
+        </div>
+      )}
+
+      {error && (
+        <div className="bg-red-50 text-red-600 p-4 rounded-xl text-sm border border-red-100">
+          {error}
+        </div>
+      )}
+
+      <div>
+        <label htmlFor="email" className="input-label">Email address</label>
+        <input
+          id="email"
+          name="email"
+          type="email"
+          required
+          value={formData.email}
+          onChange={handleChange}
+          className="input"
+          placeholder="you@example.com"
+        />
+      </div>
+
+      <div>
+        <label htmlFor="password" className="input-label">Password</label>
+        <input
+          id="password"
+          name="password"
+          type="password"
+          required
+          value={formData.password}
+          onChange={handleChange}
+          className="input"
+          placeholder="••••••••"
+        />
+      </div>
+
+      <div className="flex items-center justify-between">
+        <label className="flex items-center gap-2 cursor-pointer">
+          <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-moonstone focus:ring-moonstone" />
+          <span className="text-sm text-gunmetal/70">Remember me</span>
+        </label>
+        <Link href="/forgot-password" className="text-sm text-moonstone hover:text-moonstone-dark">
+          Forgot password?
+        </Link>
+      </div>
+
+      <button
+        type="submit"
+        disabled={loading}
+        className="w-full btn-primary py-3 text-base disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        {loading ? (
+          <span className="flex items-center justify-center gap-2">
+            <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+            </svg>
+            Signing in...
+          </span>
+        ) : (
+          'Sign in'
+        )}
+      </button>
+
+      <p className="text-center text-gunmetal/60">
+        Don't have an account?{' '}
+        <Link href="/register" className="font-medium text-moonstone hover:text-moonstone-dark">
+          Create one
+        </Link>
+      </p>
+    </form>
+  )
+}
+
+export default function LoginPage() {
   return (
     <div className="min-h-screen flex bg-gradient-to-br from-light-blue/30 via-white to-saffron/20">
       {/* Left Side - Branding */}
@@ -91,82 +172,9 @@ export default function LoginPage() {
             </p>
           </div>
 
-          <form className="space-y-5" onSubmit={handleSubmit}>
-            {registered && (
-              <div className="bg-green-50 text-green-600 p-4 rounded-xl text-sm border border-green-100">
-                ✓ Account created successfully! Please sign in.
-              </div>
-            )}
-
-            {error && (
-              <div className="bg-red-50 text-red-600 p-4 rounded-xl text-sm border border-red-100">
-                {error}
-              </div>
-            )}
-
-            <div>
-              <label htmlFor="email" className="input-label">Email address</label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                required
-                value={formData.email}
-                onChange={handleChange}
-                className="input"
-                placeholder="you@example.com"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="password" className="input-label">Password</label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                required
-                value={formData.password}
-                onChange={handleChange}
-                className="input"
-                placeholder="••••••••"
-              />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-moonstone focus:ring-moonstone" />
-                <span className="text-sm text-gunmetal/70">Remember me</span>
-              </label>
-              <Link href="/forgot-password" className="text-sm text-moonstone hover:text-moonstone-dark">
-                Forgot password?
-              </Link>
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full btn-primary py-3 text-base disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                  </svg>
-                  Signing in...
-                </span>
-              ) : (
-                'Sign in'
-              )}
-            </button>
-
-            <p className="text-center text-gunmetal/60">
-              Don't have an account?{' '}
-              <Link href="/register" className="font-medium text-moonstone hover:text-moonstone-dark">
-                Create one
-              </Link>
-            </p>
-          </form>
+          <Suspense fallback={<div className="text-center text-gunmetal/50">Loading...</div>}>
+            <LoginForm />
+          </Suspense>
         </div>
       </div>
     </div>
