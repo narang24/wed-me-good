@@ -1,0 +1,195 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==================== ENUMS ====================
+
+enum Role {
+  ADMIN
+  COUPLE
+  VENDOR
+  GUEST
+}
+
+enum PaymentStatus {
+  PENDING
+  PARTIAL
+  COMPLETED
+}
+
+enum RSVPStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+}
+
+// ==================== MODELS ====================
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  phone     String?
+  role      Role     @default(COUPLE)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  weddings Wedding[] // For couples
+  vendor   Vendor?   // For vendor users
+  guest    Guest?    // For guest users
+}
+
+model Wedding {
+  id        String   @id @default(cuid())
+  title     String
+  date      DateTime
+  venue     String
+  budget    Float    @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  userId   String
+  user     User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  events   WeddingEvent[]
+  bookings WeddingVendor[]
+  guests   Guest[]
+  tasks    Task[]
+  expenses Expense[]
+}
+
+model WeddingEvent {
+  id        String   @id @default(cuid())
+  name      String   // haldi, mehendi, reception, etc.
+  date      DateTime
+  venue     String?
+  notes     String?
+  createdAt DateTime @default(now())
+
+  // Relations
+  weddingId String
+  wedding   Wedding @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+}
+
+model Category {
+  id   String @id @default(cuid())
+  name String @unique // Caterer, Photographer, Makeup, Decor, DJ, etc.
+
+  // Relations
+  vendors  Vendor[]
+  expenses Expense[]
+}
+
+model Vendor {
+  id          String  @id @default(cuid())
+  name        String
+  description String?
+  cost        Float
+  contact     String
+  email       String?
+  address     String?
+  rating      Float   @default(0)
+  images      String[] // Array of image URLs
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  categoryId String
+  category   Category        @relation(fields: [categoryId], references: [id])
+  userId     String?         @unique // If vendor has user account
+  user       User?           @relation(fields: [userId], references: [id])
+  bookings   WeddingVendor[]
+}
+
+model WeddingVendor {
+  id            String        @id @default(cuid())
+  bookingDate   DateTime      @default(now())
+  amount        Float
+  paidAmount    Float         @default(0)
+  paymentStatus PaymentStatus @default(PENDING)
+  notes         String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  // Relations
+  weddingId String
+  wedding   Wedding @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+  vendorId  String
+  vendor    Vendor  @relation(fields: [vendorId], references: [id])
+
+  @@unique([weddingId, vendorId]) // Can't book same vendor twice for same wedding
+}
+
+model Guest {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  address   String?
+  notes     String?
+  createdAt DateTime @default(now())
+
+  // Relations
+  weddingId String
+  wedding   Wedding @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+  userId    String? @unique // If guest has user account
+  user      User?   @relation(fields: [userId], references: [id])
+  rsvp      RSVP?
+}
+
+model RSVP {
+  id          String     @id @default(cuid())
+  status      RSVPStatus @default(PENDING)
+  noOfPersons Int        @default(1)
+  message     String?    // Optional message from guest
+  respondedAt DateTime?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  // Relations
+  guestId String @unique
+  guest   Guest  @relation(fields: [guestId], references: [id], onDelete: Cascade)
+}
+
+model Task {
+  id          String     @id @default(cuid())
+  title       String
+  description String?
+  deadline    DateTime
+  status      TaskStatus @default(PENDING)
+  priority    Int        @default(1) // 1 = Low, 2 = Medium, 3 = High
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  // Relations
+  weddingId String
+  wedding   Wedding @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+}
+
+model Expense {
+  id        String   @id @default(cuid())
+  amount    Float
+  remarks   String?
+  date      DateTime @default(now())
+  createdAt DateTime @default(now())
+
+  // Relations
+  weddingId  String
+  wedding    Wedding  @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
+}

@@ -1,26 +1,126 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+@theme {
+  /* Primary Palette */
+  --color-light-blue: #C3E7F1;
+  --color-moonstone: #519CAB;
+  --color-moonstone-dark: #3d7a87;
+  --color-saffron: #FFC64F;
+  --color-saffron-light: #FFD67A;
+  --color-saffron-dark: #E6A82E;
+  --color-gunmetal: #20373B;
+  --color-gunmetal-light: #2d4a4f;
+  
+  /* UI Colors */
+  --color-cream: #FDF8F3;
+  --color-card-pink: #F8E8E8;
+  --color-card-yellow: #FFF3D6;
+  --color-card-purple: #E8E0F0;
+  --color-card-blue: #E0EEF4;
+  --color-card-green: #E0F4E8;
+  
+  /* Shadows */
+  --shadow-soft: 0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04);
+  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.05);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: #F5F7FA;
+  color: #20373B;
+}
+
+/* Card Styles */
+.card {
+  @apply bg-white rounded-2xl p-5 shadow-card;
+}
+
+.card-stat {
+  @apply rounded-2xl p-5 shadow-soft transition-transform hover:scale-[1.02];
+}
+
+/* Button Styles */
+.btn-primary {
+  @apply bg-moonstone text-white px-5 py-2.5 rounded-xl font-medium 
+         hover:bg-moonstone-dark transition-colors cursor-pointer;
+}
+
+.btn-secondary {
+  @apply bg-saffron text-gunmetal px-5 py-2.5 rounded-xl font-medium 
+         hover:bg-saffron-dark transition-colors cursor-pointer;
+}
+
+.btn-outline {
+  @apply border-2 border-moonstone text-moonstone px-5 py-2.5 rounded-xl 
+         font-medium hover:bg-moonstone hover:text-white transition-colors cursor-pointer;
+}
+
+/* Input Styles */
+.input {
+  @apply w-full px-4 py-3 rounded-xl border border-gray-200 
+         focus:outline-none focus:border-moonstone focus:ring-2 
+         focus:ring-moonstone/20 transition-all bg-white;
+}
+
+.input-label {
+  @apply block text-sm font-medium text-gunmetal mb-1.5;
+}
+
+/* Badge Styles */
+.badge {
+  @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium;
+}
+
+.badge-success {
+  @apply bg-green-100 text-green-700;
+}
+
+.badge-warning {
+  @apply bg-saffron/30 text-saffron-dark;
+}
+
+.badge-info {
+  @apply bg-light-blue text-moonstone;
+}
+
+.badge-danger {
+  @apply bg-red-100 text-red-700;
+}
+
+/* Sidebar */
+.sidebar-link {
+  @apply flex items-center gap-3 px-4 py-3 rounded-xl text-gunmetal/70 
+         hover:bg-light-blue/50 hover:text-gunmetal transition-colors;
+}
+
+.sidebar-link.active {
+  @apply bg-moonstone text-white;
+}
+
+/* Progress Bar */
+.progress-bar {
+  @apply h-2 rounded-full bg-gray-100 overflow-hidden;
+}
+
+.progress-fill {
+  @apply h-full rounded-full bg-gradient-to-r from-moonstone to-saffron;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #519CAB;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3d7a87;
 }
