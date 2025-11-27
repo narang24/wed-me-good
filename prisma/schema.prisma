@@ -50,6 +50,7 @@ model User {
   weddings Wedding[] // For couples
   vendor   Vendor?   // For vendor users
   guest    Guest?    // For guest users
+  reviews  Review[]  // Reviews written by user
 }
 
 model Wedding {
@@ -113,6 +114,7 @@ model Vendor {
   userId     String?         @unique // If vendor has user account
   user       User?           @relation(fields: [userId], references: [id])
   bookings   WeddingVendor[]
+  reviews    Review[]        // Reviews for this vendor
 }
 
 model WeddingVendor {
@@ -192,4 +194,21 @@ model Expense {
   wedding    Wedding  @relation(fields: [weddingId], references: [id], onDelete: Cascade)
   categoryId String
   category   Category @relation(fields: [categoryId], references: [id])
+}
+
+// NEW: Review Model
+model Review {
+  id        String   @id @default(cuid())
+  rating    Int      // 1 to 5 stars
+  comment   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  vendorId String
+  vendor   Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  userId   String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([vendorId, userId]) // One review per user per vendor
 }
